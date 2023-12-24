@@ -2,15 +2,35 @@ package main
 
 import (
 	"fmt"
+	gopng "image/png"
 	"os"
 	"path/filepath"
+	"png-reader/image"
 	"png-reader/png"
 	"strings"
 )
 
 func main() {
-	runSingle("basi0g01.png")
+	// runSingle("basi0g01.png")
 	// runBatch("b")
+
+	x := image.Image{Data: [][]uint8{
+		{1, 1, 1, 2, 2, 2, 0, 255, 255},
+		{0, 0, 50, 0, 0, 20, 0, 0, 50},
+		{0, 0, 255, 0, 0, 255, 0, 0, 255},
+		{0, 0, 255, 0, 0, 255, 0, 0, 255},
+		{0, 0, 255, 0, 0, 255, 0, 0, 255},
+		{0, 0, 255, 0, 0, 255, 0, 0, 255},
+		{0, 0, 255, 0, 0, 255, 0, 0, 255},
+		{0, 0, 255, 0, 0, 255, 0, 0, 255},
+		{0, 0, 255, 0, 0, 255, 0, 0, 255}}, Channels: 1}
+	y := x.Convert()
+	fmt.Println(y)
+	f, _ := os.Create("output.png")
+	err := gopng.Encode(f, y)
+	if err != nil {
+		panic(err)
+	}
 }
 
 func runBatch(prefix string) {
@@ -40,6 +60,13 @@ func runBatch(prefix string) {
 
 		for _, c := range chunks {
 			fmt.Println(c)
+			if c.TypeCode == [4]byte{73, 72, 68, 82} {
+				id, err := png.ParseIHDR(c)
+				if err != nil {
+					panic(err)
+				}
+				fmt.Println(id)
+			}
 		}
 	}
 }
@@ -62,6 +89,13 @@ func runSingle(imageName string) {
 	}
 
 	for _, c := range chunks {
-		fmt.Println(c)
+		// fmt.Println(c)
+		if c.TypeCode == [4]byte{73, 72, 68, 82} {
+			id, err := png.ParseIHDR(c)
+			if err != nil {
+				panic(err)
+			}
+			fmt.Println(id)
+		}
 	}
 }
